@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true })); // to support URL-encoded bodie
 app.use(express.json()); // to support JSON-encoded bodies
 app.use(express.static("public"));
 
-app.listen(3030, function () {
+app.listen(`0.0.0.0:$PORT`, function () {
   console.log("Server running on port 3030!");
 });
 
