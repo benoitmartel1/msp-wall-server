@@ -18,8 +18,8 @@ app.listen(`0.0.0.0:$PORT`, function () {
 
 const sqlite3 = require("sqlite3").verbose();
 
-console.log(sqlite3);
-console.log("Connecting...");
+// console.log(sqlite3);
+// console.log("Connecting...");
 
 //Initial connect to db
 let db = new sqlite3.Database(
