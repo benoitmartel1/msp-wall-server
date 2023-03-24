@@ -49,15 +49,12 @@ function createDatabase() {
       //   exit(1);
     }
     newdb.exec(
-      `CREATE TABLE activities (id integer primary key, fr text, en text);
+      `CREATE TABLE activities (id integer primary key, name text);
+	  INSERT INTO 'activities' ('name') VALUES ('Delta'), ('Para'), ('Glace'), ('Poudreuse'), ('Vélo'), ('Rando'), ('Sous le soleil'), ('Sous zéro'), ('Neige'), ('Gravier'), ('Au ciel'), ('Au sommet');
 	  CREATE TABLE entreprises (id integer primary key, name text, link text, activity integer not null, FOREIGN KEY(activity) REFERENCES activities(id));
-		INSERT INTO activities (fr, en) VALUES('parapente', 'parapenteEN');
-		INSERT INTO activities (fr, en) VALUES('deltaplane', 'deltaplaneEN');
-		INSERT INTO activities (fr, en) VALUES('motoneige', 'motoneigeEN');
-		INSERT INTO activities (fr, en) VALUES('VTT', 'VTTEN');
-		INSERT INTO entreprises (name, link, activity) VALUES('Pneus Mascouche', 'http://', 1);
-		INSERT INTO entreprises (name, link, activity) VALUES('St-Hubert', 'http://ss', 1);
-		INSERT INTO entreprises (name, link, activity) VALUES('Dongo Trains', 'http://www', 2);`,
+		INSERT INTO entreprises (name, link, activity) VALUES('Camping Mont-Saint-Pierre', 'https://municipalites-du-quebec.ca/mont-st-pierre/camping.php', 1);
+		INSERT INTO entreprises (name, link, activity) VALUES('Deltaplane tandem', 'https://www.deltaplanetandem.ca/', 1);
+		INSERT INTO entreprises (name, link, activity) VALUES('Yvon Volé enr.', 'https://vacanceshaute-gaspesie.com/entreprise/yvon-vole-enr-les-passagers-du-vent-352.php', 2);`,
 
       () => {
         // callback
@@ -80,7 +77,7 @@ async function getDBConnection() {
   return db;
 }
 
-app.get("/api/:id/entreprises", async function (req, res) {
+app.get("/:id/entreprises", async function (req, res) {
   let db = await getDBConnection();
   let authors = await db.all(
     "SELECT name, link, id from entreprises WHERE activity = " + req.params.id,
@@ -96,8 +93,10 @@ app.get("/api/:id/entreprises", async function (req, res) {
     }
   );
 });
+
+app.use(express.static(__dirname + "/public"));
 app.get("/admin", function (req, res) {
-  res.sendFile(path.join(__dirname, "/index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.get("/entreprises", async function (req, res) {
@@ -113,7 +112,7 @@ app.get("/entreprises", async function (req, res) {
     }
   );
 });
-app.get("/api/activities", async function (req, res) {
+app.get("/activities", async function (req, res) {
   let db = await getDBConnection();
   let authors = await db.all("SELECT * from activities", (err, data) => {
     if (err) {
@@ -139,26 +138,10 @@ app.get("/api/activities/:id", async function (req, res) {
     }
   );
 });
-//If the incoming post path is /api/settings, the update all settings with provided parameters
-// app.post('/api/entreprise/:id', async function (req, res) {
-//   let db = await getDBConnection()
-
-//   let authors = await db.all(
-//     `UPDATE entreprises SET "${req.body.key}"="${req.body.value}" WHERE id=${req.params.id} RETURNING *`,
-//     (err, settings) => {
-//       if (err) {
-//         console.log(err)
-//         res.status(500).send(err)
-//       } else {
-//         res.send({ settings })
-//       }
-//     }
-//   )
-// })
-app.post("/api/entreprises/", async function (req, res) {
+app.post("/entreprises", async function (req, res) {
   let db = await getDBConnection();
   let payload = req.body;
-
+  console.log(payload);
   let request = "";
   payload.forEach((e) => {
     request += "UPDATE entreprises SET ";
@@ -179,7 +162,7 @@ app.post("/api/entreprises/", async function (req, res) {
     }
   });
 });
-app.post("/api/activities/:id", async function (req, res) {
+app.post("/activities/:id", async function (req, res) {
   let db = await getDBConnection();
   let payload = req.body;
 
@@ -201,7 +184,7 @@ app.post("/api/activities/:id", async function (req, res) {
     }
   );
 });
-app.post("/api/entreprises/:id/delete", async function (req, res) {
+app.post("/entreprises/:id/remove", async function (req, res) {
   let db = await getDBConnection();
 
   await db.all(
@@ -216,7 +199,7 @@ app.post("/api/entreprises/:id/delete", async function (req, res) {
     }
   );
 });
-app.post("/api/activities/:id/add", async function (req, res) {
+app.post("/activities/:id/add", async function (req, res) {
   let db = await getDBConnection();
 
   await db.all(
