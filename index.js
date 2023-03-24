@@ -1,8 +1,9 @@
-var express = require("express");
-var cors = require("cors");
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 
-var bodyParser = require("body-parser");
-var app = express();
+const bodyParser = require("body-parser");
+const app = express();
 // var port = 3030
 
 app.use(cors());
@@ -93,6 +94,10 @@ app.get("/api/:id/entreprises", async function (req, res) {
     }
   );
 });
+app.get("/admin", function (req, res) {
+  res.sendFile(path.join(__dirname, "/index.html"));
+});
+
 app.get("/entreprises", async function (req, res) {
   let db = await getDBConnection();
   let authors = await db.all(
