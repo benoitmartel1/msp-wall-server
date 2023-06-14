@@ -1,8 +1,8 @@
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
 
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 const app = express();
 // var port = 3030
 
@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(express.urlencoded({ extended: true })); // to support URL-encoded bodies
 app.use(express.json()); // to support JSON-encoded bodies
-app.use(express.static("public"));
+app.use(express.static('public'));
 
 const port = process.env.PORT || 3333;
 
@@ -18,34 +18,34 @@ app.listen(port, function () {
   console.log(`Server running on port ${port}`);
 });
 
-const sqlite3 = require("sqlite3").verbose();
+const sqlite3 = require('sqlite3').verbose();
 
 // console.log(sqlite3);
 // console.log("Connecting...");
 
 //Initial connect to db
 let db = new sqlite3.Database(
-  "./settings.db",
+  './settings.db',
   sqlite3.OPEN_READWRITE,
   (err) => {
     //if db doesnt exist...
-    if (err && err.code == "SQLITE_CANTOPEN") {
+    if (err && err.code == 'SQLITE_CANTOPEN') {
       //create db
       createDatabase();
       return;
     } else if (err) {
-      console.log("Getting error " + err);
+      console.log('Getting error ' + err);
       //exit(1);
     }
-    console.log("Connected to the in-memory SQlite database.");
+    console.log('Connected to the in-memory SQlite database.');
   }
 );
 
 function createDatabase() {
   //Create db only if doesnt exist...
-  var newdb = new sqlite3.Database("./settings.db", (err) => {
+  var newdb = new sqlite3.Database('./settings.db', (err) => {
     if (err) {
-      console.log("Getting error " + err);
+      console.log('Getting error ' + err);
       //   exit(1);
     }
     newdb.exec(
@@ -66,7 +66,7 @@ function createDatabase() {
 async function getDBConnection() {
   //Connect to db
   const db = new sqlite3.Database(
-    "./settings.db",
+    './settings.db',
     sqlite3.OPEN_READWRITE,
     (err) => {
       if (err) {
@@ -77,32 +77,32 @@ async function getDBConnection() {
   return db;
 }
 
-app.get("/:id/entreprises", async function (req, res) {
+app.get('/:id/entreprises', async function (req, res) {
   let db = await getDBConnection();
   let authors = await db.all(
-    "SELECT name, link, id from entreprises WHERE activity = " + req.params.id,
+    'SELECT name, link, id from entreprises WHERE activity = ' + req.params.id,
     (err, data) => {
       if (err) {
         console.log(err);
         res.status(500).send(err);
       } else {
-        console.log("request received...");
+        console.log('request received...');
         console.log(data);
         res.send({ data });
       }
     }
   );
 });
-
-app.use(express.static(__dirname + "/public"));
-app.get("/admin", function (req, res) {
-  res.sendFile(path.join(__dirname, "index.html"));
+//Tes
+app.use(express.static(__dirname + '/public'));
+app.get('/admin', function (req, res) {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get("/entreprises", async function (req, res) {
+app.get('/entreprises', async function (req, res) {
   let db = await getDBConnection();
   let authors = await db.all(
-    "SELECT name, link, activity, id from entreprises ",
+    'SELECT name, link, activity, id from entreprises ',
     (err, data) => {
       if (err) {
         res.status(500).send(err);
@@ -112,9 +112,9 @@ app.get("/entreprises", async function (req, res) {
     }
   );
 });
-app.get("/activities", async function (req, res) {
+app.get('/activities', async function (req, res) {
   let db = await getDBConnection();
-  let authors = await db.all("SELECT * from activities", (err, data) => {
+  let authors = await db.all('SELECT * from activities', (err, data) => {
     if (err) {
       res.status(500).send(err);
     } else {
@@ -122,34 +122,34 @@ app.get("/activities", async function (req, res) {
     }
   });
 });
-app.get("/api/activities/:id", async function (req, res) {
+app.get('/api/activities/:id', async function (req, res) {
   let db = await getDBConnection();
   let authors = await db.all(
-    "SELECT * from activities WHERE id=" + req.params.id,
+    'SELECT * from activities WHERE id=' + req.params.id,
     (err, data) => {
       if (err) {
         console.log(err);
         res.status(500).send(err);
       } else {
-        console.log("request received...");
+        console.log('request received...');
         console.log(data);
         res.send({ data });
       }
     }
   );
 });
-app.post("/entreprises", async function (req, res) {
+app.post('/entreprises', async function (req, res) {
   let db = await getDBConnection();
   let payload = req.body;
   console.log(payload);
-  let request = "";
+  let request = '';
   payload.forEach((e) => {
-    request += "UPDATE entreprises SET ";
+    request += 'UPDATE entreprises SET ';
 
     for (const [key, value] of Object.entries(e)) {
-      if (key != "id") request += `${key} = "${value}", `;
+      if (key != 'id') request += `${key} = "${value}", `;
     }
-    request = request.replace(/,\s*$/, "");
+    request = request.replace(/,\s*$/, '');
     request += ` WHERE id=${e.id} RETURNING *; `;
   });
   console.log(request);
@@ -162,15 +162,15 @@ app.post("/entreprises", async function (req, res) {
     }
   });
 });
-app.post("/activities/:id", async function (req, res) {
+app.post('/activities/:id', async function (req, res) {
   let db = await getDBConnection();
   let payload = req.body;
 
-  let request = "";
+  let request = '';
   for (const [key, value] of Object.entries(payload)) {
     request += `${key} = "${value}", `;
   }
-  request = request.replace(/,\s*$/, "");
+  request = request.replace(/,\s*$/, '');
 
   await db.all(
     `UPDATE activities SET ${request} WHERE id=${req.params.id} RETURNING *`,
@@ -184,7 +184,7 @@ app.post("/activities/:id", async function (req, res) {
     }
   );
 });
-app.post("/entreprises/:id/remove", async function (req, res) {
+app.post('/entreprises/:id/remove', async function (req, res) {
   let db = await getDBConnection();
 
   await db.all(
@@ -199,7 +199,7 @@ app.post("/entreprises/:id/remove", async function (req, res) {
     }
   );
 });
-app.post("/activities/:id/add", async function (req, res) {
+app.post('/activities/:id/add', async function (req, res) {
   let db = await getDBConnection();
 
   await db.all(
